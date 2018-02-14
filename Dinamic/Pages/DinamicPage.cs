@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Dinamic.Models;
+using Dinamic.Templates;
 using Xamarin.Forms;
 
 namespace Dinamic
@@ -109,25 +110,8 @@ namespace Dinamic
                     case FieldTypeEnum.Slider:
                         break;
                     case FieldTypeEnum.Number:
-
-                        EntryCell oNumberCell = new EntryCell
-                        {
-                            Label = oField.Title,
-                            Placeholder = oField.Detail,
-                            Keyboard = Keyboard.Numeric,
-                        };
-
-
-                        oNumberCell.SetBinding(EntryCell.TextProperty, "Value");
-                        oNumberCell.BindingContext = oField;
-
-                        oNumberCell.Completed += (sender, e) => {
-                            oField.ValidatorCompletedCommand?.Execute(null);
-                        };
-
-
-                        oTableSectionCurrent.Add(oNumberCell);
-
+                        
+                        oTableSectionCurrent.Add(ViewTemplate.GetNumberCell(oField));
                         break;
                 }
 
@@ -140,8 +124,7 @@ namespace Dinamic
 
         }
 
-
-
+      
 
         private async void ToolbarItemCommand()
         {
@@ -152,7 +135,7 @@ namespace Dinamic
             {
 
                 //se existe validaçao executa a mesma
-                oField.ValidatorCompletedCommand?.Execute(null);
+                oField.OnCompletedEvent?.Invoke(null,null);
 
                 //se o campo nao for valido nao continua com o processo
                 if (!oField.IsValid)

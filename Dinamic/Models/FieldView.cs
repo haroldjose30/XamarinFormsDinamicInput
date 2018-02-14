@@ -31,8 +31,10 @@ namespace Dinamic.Models
             set
             {
                 _Value = value;
+
                 //se existe validaçao executa a mesma
-                this.ValidatorChangedCommand?.Execute(null);
+                this.OnChangedEvent?.Invoke(null, null);
+
                 NotifyPropertyChanged("Value");
             }
         }
@@ -65,14 +67,18 @@ namespace Dinamic.Models
             }
         }
 
-        public Command ValidatorChangedCommand { get; set; }
-        public Command ValidatorCompletedCommand { get; set; }
+        public EventHandler OnChangedEvent { get; set; }
+        public EventHandler OnCompletedEvent { get; set; }
+        public EventHandler<FocusEventArgs> OnUnfocusedEvent { get; set; }
+
+
        
         public FieldView()
         {
-            //cria os validadores
-            this.ValidatorChangedCommand = new Command(ValidatorChangedCommandExecute);
-            this.ValidatorCompletedCommand = new Command(ValidatorCompletedCommandExecute);
+            //Cria os eventos necessários de validacao dos campos
+            this.OnChangedEvent += OnChanged;
+            this.OnCompletedEvent += OnCompleted;
+            this.OnUnfocusedEvent += OnUnfocused;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -175,25 +181,44 @@ namespace Dinamic.Models
         }      
 
 
-        private async void ValidatorChangedCommandExecute()
+        private async void OnChanged(object sender, EventArgs e)
         {
+
+
+            if (this.Value != null && this.Value.Trim().Equals(""))
+                return;
+
 
 
             if (this.FieldType == FieldTypeEnum.Number)
             {
+
                 double cNumber = 0;
                 if (this._Value != null && !this._Value.Trim().Equals("") && !Double.TryParse(this._Value, out cNumber))
                 {
-                    this._Value = "";
+                    this._IsValid = false;
+                    this.Value = "";
                     Application.Current.MainPage.DisplayAlert("Atenção", "Valor inválido", "OK");
                     return;
                 }
+
+
             }
+               
+        }
+       
+
+        private void OnUnfocused(object sender, FocusEventArgs e)
+        {
+            if (this.Value != null && this.Value.Trim().Equals(""))
+                return;
+
+
+            OnCompleted(sender, e);
         }
 
 
-
-        private async void ValidatorCompletedCommandExecute()
+        private async void OnCompleted(object sender, EventArgs e)
         {
             //verifica se o campo é obrigatorio
             if (this.Required && (this.Value == null || this.Value.Trim().Equals("")))
@@ -241,9 +266,7 @@ namespace Dinamic.Models
 
 
 
-
-
-
+     
     }
 
 }
