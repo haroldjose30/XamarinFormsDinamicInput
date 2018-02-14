@@ -4,6 +4,9 @@ using Xamarin.Forms;
 
 namespace Dinamic.Models
 {
+    /// <summary>
+    /// Teste de commit via visual studio
+    /// </summary>
     public class FieldView : INotifyPropertyChanged
     {
         
