@@ -13,117 +13,74 @@ namespace Dinamic
         private List<FieldView> oFields; 
         public DinamicPage(string cFormTitle, List<FieldView> _oFields)
         {
-
             oFields = _oFields;
-
-            //preenche com os valores default
-            if (oFields == null)
-            {
-                const string cGrupo01 = "Grupo 01";
-                const string cGrupo02 = "Grupo 02";
-
-                oFields = new List<FieldView>();
-
-                oFields.Add(new FieldView().SetText(cGrupo01, "Titulo1", "detalhe1"));
-                oFields.Add(new FieldView().SetNumber(cGrupo01, "Altura(cm)", "altura entre 10-20", 10, 20));
-                oFields.Add(new FieldView().SetNumber(cGrupo01, "Largura(cm)", "largura entre 10-20", 10, 20));
-                oFields.Add(new FieldView().SetNumber(cGrupo01, "Peso(Kg)", "peso entre 100-200", 100, 200));
-
-
-                oFields.Add(new FieldView().SetText(cGrupo02, "Titulo2", "detalhe2"));
-                oFields.Add(new FieldView().SetNumber(cGrupo02, "Altura(cm)", "altura entre 10-20", 10, 20));
-                oFields.Add(new FieldView().SetNumber(cGrupo02, "Largura(cm)", "largura entre 10-20", 10, 20));
-                oFields.Add(new FieldView().SetNumber(cGrupo02, "Peso(Kg)", "peso entre 100-200", 100, 200));
-
-            };
-
-
-
             Title = cFormTitle;
-
-
-            TableView oTableView = new TableView();
-            oTableView.Intent = TableIntent.Form;
-            //oTableView.RowHeight = 100;
-            //oTableView.HasUnevenRows = true;
-
-            TableRoot oTableRoot = new TableRoot();
-
-            TableSection oTableSectionCurrent = new TableSection();
+            //monta a tela de loading
+            Content = ViewTemplate.GetLoadingView("Carregando","Por favor aguarde...");
 
            
-
-            string cGroupAux = "";
-            foreach (var oField in oFields)
-            {
-                //se mudou o grupo
-                if (!cGroupAux.Equals(oField.GroupTitle))
-                {
-                    //adiciona uma nova sessao
-                    cGroupAux = oField.GroupTitle;
-                    oTableSectionCurrent = new TableSection(oField.GroupTitle);
-                    oTableRoot.Add(oTableSectionCurrent);
-                }
-
-                switch (oField.FieldType)
-                {
-
-                    case FieldTypeEnum.Image:
-                        break;
-                    case FieldTypeEnum.Text:
-
-
-                        TextCell oTextCell = new TextCell
-                        {
-                            Text = oField.Title,
-                            Detail = oField.Detail,
-                        };
-
-                        oTableSectionCurrent.Add(oTextCell);
-
-                        break;
-                    case FieldTypeEnum.Switch:
-                        break;
-                    case FieldTypeEnum.Entry:
-                        
-                        EntryCell oEntryCell = new EntryCell
-                        {
-                            Label = oField.Title,
-                            Placeholder = oField.Detail,
-                            Keyboard = Keyboard.Text,
-                        };
-
-
-                        oEntryCell.SetBinding(EntryCell.TextProperty, "Value");
-                        oEntryCell.BindingContext = oField;
-
-
-                        oTableSectionCurrent.Add(oEntryCell);    
-
-                        break;
-                    case FieldTypeEnum.DatePicker:
-                        break;
-                    case FieldTypeEnum.TimePicker:
-                        break;
-                    case FieldTypeEnum.Picker:
-                        break;
-                    case FieldTypeEnum.Slider:
-                        break;
-                    case FieldTypeEnum.Number:
-                        
-                        oTableSectionCurrent.Add(ViewTemplate.GetNumberCell(oField));
-                        break;
-                }
-
-            }
-
-            oTableView.Root = oTableRoot;
-            Content = oTableView;
-            this.ToolbarItems.Add(new ToolbarItem() { Text = "Gravar", Order = ToolbarItemOrder.Primary, Command = new Command(ToolbarItemCommand), CommandParameter = "1" });
-
-
+           
         }
 
+        protected override void OnAppearing()
+        {
+            if (oFields == null)
+                return;
+
+          TableView oTableView = new TableView();
+          oTableView.Intent = TableIntent.Form;
+          oTableView.RowHeight = 50;
+          oTableView.HasUnevenRows = true;
+
+          TableRoot oTableRoot = new TableRoot();
+
+          TableSection oTableSectionCurrent = new TableSection();
+
+
+
+          string cGroupAux = "";
+          foreach (var oField in oFields)
+          {
+              //se mudou o grupo
+              if (!cGroupAux.Equals(oField.GroupTitle))
+              {
+                  //adiciona uma nova sessao
+                  cGroupAux = oField.GroupTitle;
+                  oTableSectionCurrent = new TableSection(oField.GroupTitle);
+                  oTableRoot.Add(oTableSectionCurrent);
+              }
+
+              switch (oField.FieldType)
+              {
+
+                  case FieldTypeEnum.Image:oTableSectionCurrent.Add(ViewTemplate.GetImageCell(oField));
+                      break;
+                  case FieldTypeEnum.Text: oTableSectionCurrent.Add(ViewTemplate.GetTextCell(oField));
+                      break;
+                  case FieldTypeEnum.Switch: oTableSectionCurrent.Add(ViewTemplate.GetSwitchCell(oField));
+                      break;
+                  case FieldTypeEnum.Entry: oTableSectionCurrent.Add(ViewTemplate.GetEntryCell(oField));
+                      break;
+                  case FieldTypeEnum.DatePicker: oTableSectionCurrent.Add(ViewTemplate.GetDatePickerCell(oField));
+                      break;
+                  case FieldTypeEnum.TimePicker:  oTableSectionCurrent.Add(ViewTemplate.GetTimePickerCell(oField));
+                      break;
+                  case FieldTypeEnum.Picker: oTableSectionCurrent.Add(ViewTemplate.GetPickerCell(oField));
+                      break;
+                  case FieldTypeEnum.Slider:oTableSectionCurrent.Add(ViewTemplate.GetSliderCell(oField));
+                      break;
+                  case FieldTypeEnum.Number: oTableSectionCurrent.Add(ViewTemplate.GetNumberCell(oField));
+                      break;
+              }
+
+          }
+
+          oTableView.Root = oTableRoot;
+          Content = oTableView;
+          this.ToolbarItems.Add(new ToolbarItem() { Text = "Gravar", Order = ToolbarItemOrder.Primary, Command = new Command(ToolbarItemCommand), CommandParameter = "1" });
+
+          base.OnAppearing();
+        }
       
 
         private async void ToolbarItemCommand()

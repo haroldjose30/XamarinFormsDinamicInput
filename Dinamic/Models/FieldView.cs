@@ -9,8 +9,6 @@ namespace Dinamic.Models
     /// </summary>
     public class FieldView : INotifyPropertyChanged
     {
-        
-
         public string Title { get; set; }
 
         public FieldTypeEnum FieldType { get; set; }
@@ -43,8 +41,8 @@ namespace Dinamic.Models
         public int FieldOrder { get; set; }
 
         public string Source { get; set; }
-        public double ValueMinimum { get; set; }
-        public double ValueMaximum { get; set; }
+        public string ValueMinimum { get; set; }
+        public string ValueMaximum { get; set; }
         public string ValueDefault { get; set; }
 
         public FieldGroupEnum FieldGroup { get; set; }
@@ -95,7 +93,7 @@ namespace Dinamic.Models
 
 
 
-        public FieldView SetText(string cGroupTitle, string cTitle, string cDetail)
+        public FieldView SetTextField(string cGroupTitle, string cTitle, string cDetail)
         {
             this.GroupTitle = cGroupTitle;
             this.FieldType = FieldTypeEnum.Text;
@@ -105,7 +103,7 @@ namespace Dinamic.Models
             return this;
         }
 
-        public FieldView SetImage(string cGroupTitle,string cTitle, string cDetail, string cSource)
+        public FieldView SetImageField(string cGroupTitle,string cTitle, string cDetail, string cSource)
         {
 
             this.GroupTitle = cGroupTitle;
@@ -114,7 +112,7 @@ namespace Dinamic.Models
             return this;
         }
 
-        public FieldView SetEntry(string cGroupTitle,string cTitle, string cPlaceholder)
+        public FieldView SetEntryField(string cGroupTitle,string cTitle, string cPlaceholder)
         {
             this.GroupTitle = cGroupTitle;
             this.FieldType = FieldTypeEnum.Entry;
@@ -123,20 +121,20 @@ namespace Dinamic.Models
             return this;
         }
 
-        public FieldView SetNumber(string cGroupTitle,string cTitle, string cPlaceholder, double nMinimum, double nMaximum)
+        public FieldView SetNumberField(string cGroupTitle,string cTitle, string cPlaceholder, double? nMinimum = null, double? nMaximum = null)
         {
             this.GroupTitle = cGroupTitle;
             this.FieldType = FieldTypeEnum.Number;
             this.Title = cTitle;
             this.Detail = cPlaceholder;
-            this.ValueMinimum = nMinimum; 
-            this.ValueMaximum = nMaximum;
+            this.ValueMinimum = nMinimum?.ToString(); 
+            this.ValueMaximum = nMaximum?.ToString();
             return this;
         }
 
      
 
-        public FieldView SetSwitch(string cGroupTitle,string cTitle, Boolean lDefault)
+        public FieldView SetSwitchField(string cGroupTitle,string cTitle, Boolean lDefault = false)
         {
             this.GroupTitle = cGroupTitle;
             this.FieldType = FieldTypeEnum.Switch;
@@ -145,15 +143,17 @@ namespace Dinamic.Models
             return this;
         }
 
-        public FieldView SetDatePicker(string cGroupTitle,string cTitle)
+        public FieldView SetDatePickerField(string cGroupTitle,string cTitle,DateTime? dMinimum = null, DateTime? dMaximum = null)
         {
             this.GroupTitle = cGroupTitle;
             this.FieldType = FieldTypeEnum.DatePicker;
             this.Title = cTitle;
+            this.ValueMinimum = dMinimum?.ToString();
+            this.ValueMaximum = dMaximum?.ToString();
             return this;
         }
 
-        public FieldView SetTimePicker(string cGroupTitle,string cTitle)
+        public FieldView SetTimePickerField(string cGroupTitle,string cTitle)
         {
             this.GroupTitle = cGroupTitle;
             this.FieldType = FieldTypeEnum.TimePicker; 
@@ -161,22 +161,23 @@ namespace Dinamic.Models
             return this;
         }
 
-        public FieldView SetPicker(string cGroupTitle,string cTitle,string cSource)
-        {
-            this.GroupTitle = cGroupTitle;
-            this.FieldType = FieldTypeEnum.Picker;
-            this.Title = cTitle; 
-            this.Source=cSource;
-            return this;
-        }
-
-        public FieldView SetSlider(string cGroupTitle,string cTitle, double nMinimum, double nMaximum)
+        public FieldView SetPickerField(string cGroupTitle,string cTitle,string cTitlePicker,string cSource)
         {
             this.GroupTitle = cGroupTitle;
             this.FieldType = FieldTypeEnum.Picker;
             this.Title = cTitle;
-            this.ValueMinimum = nMinimum; 
-            this.ValueMaximum=nMaximum;
+            this.Detail = cTitlePicker;
+            this.Source=cSource;
+            return this;
+        }
+
+        public FieldView SetSliderField(string cGroupTitle,string cTitle, double? nMinimum = null, double? nMaximum = null)
+        {
+            this.GroupTitle = cGroupTitle;
+            this.FieldType = FieldTypeEnum.Slider;
+            this.Title = cTitle;
+            this.ValueMinimum = nMinimum?.ToString(); 
+            this.ValueMaximum=nMaximum?.ToString();
             return this;
         }      
 
@@ -198,7 +199,8 @@ namespace Dinamic.Models
                 {
                     this._IsValid = false;
                     this.Value = "";
-                    Application.Current.MainPage.DisplayAlert("Atenção", "Valor inválido", "OK");
+                    //no onchanged nao precisa exibir a informacao
+                    //Application.Current.MainPage.DisplayAlert("Atenção", "Valor inválido", "OK");
                     return;
                 }
 
@@ -232,8 +234,8 @@ namespace Dinamic.Models
             if (this.FieldType == FieldTypeEnum.Number)
             {
 
-                double cNumber = 0;
-                if (this._Value != null && !this._Value.Trim().Equals("") && !Double.TryParse(this._Value, out cNumber))
+                double nNumber = 0;
+                if (this._Value != null && !this._Value.Trim().Equals("") && !Double.TryParse(this._Value, out nNumber))
                 {
                     this._IsValid = false;
                     this.Value = "";
@@ -242,21 +244,58 @@ namespace Dinamic.Models
                 }
 
 
-                if (this.ValueMinimum != null && cNumber < this.ValueMinimum)
+                //valida o valor minimo
+                double nAuxMin = 0;
+                var lParseMinOk = Double.TryParse(this.ValueMinimum, out nAuxMin);
+
+                //valida o valor maximo
+                double nAuxMax = 0;
+                var lParseMaxOk = Double.TryParse(this.ValueMaximum, out nAuxMax);
+
+
+                if (lParseMinOk && lParseMaxOk
+                   )
                 {
-                    this._IsValid = false;
-                    this.Value = "";
-                    Application.Current.MainPage.DisplayAlert("Atenção", $"Valor deve ser maior que {this.ValueMinimum.ToString()}", "OK");
-                    return;
+                    if (nNumber < nAuxMin || nNumber > nAuxMax)
+                    {
+                        this._IsValid = false;
+                        this.Value = "";
+                        Application.Current.MainPage.DisplayAlert("Atenção", $"Valor deve ser entre {this.ValueMinimum} e {this.ValueMaximum}", "OK");
+                        return;
+                    }
+           
+                }
+           
+
+
+                if (lParseMinOk)
+                {
+                    if (nNumber < nAuxMin)
+                    {
+                        this._IsValid = false;
+                        this.Value = "";
+                        Application.Current.MainPage.DisplayAlert("Atenção", $"Valor deve ser maior que {this.ValueMinimum}", "OK");
+                        return;
+                    }
+           
+                }
+           
+                if (lParseMaxOk)
+                {
+                    if (nNumber > nAuxMax)
+                    {
+                        this._IsValid = false;
+                        this.Value = "";
+                        Application.Current.MainPage.DisplayAlert("Atenção", $"Valor deve ser menor que {this.ValueMaximum}", "OK");
+                        return;
+                    }
+
+                    
                 }
 
-                if (this.ValueMaximum != null && cNumber > this.ValueMaximum)
-                {
-                    this._IsValid = false;
-                    this.Value = "";
-                    Application.Current.MainPage.DisplayAlert("Atenção", $"Valor deve ser menor que {this.ValueMaximum.ToString()}", "OK");
-                    return;
-                }
+
+
+               
             }
 
             //se passou por todas as validacoes retorna como verdadeiro a validacao
