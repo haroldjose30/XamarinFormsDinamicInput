@@ -73,7 +73,7 @@ namespace Dinamic.Templates
             Entry oEntry = new Entry()
             {
                 Placeholder = oField.Detail,
-                Keyboard = Keyboard.Numeric,
+                Keyboard = Keyboard.Text,
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 VerticalOptions = LayoutOptions.Center
             };
@@ -89,6 +89,7 @@ namespace Dinamic.Templates
             //se for do tipo numero valida o numero
             if (oField.FieldType == FieldTypeEnum.Number)
             {
+                oEntry.Keyboard = Keyboard.Numeric;
                 //seta o valor default configurado
                 Double nAux = 0;
                 var lParseOk = Double.TryParse(oField.ValueDefault, out nAux);
