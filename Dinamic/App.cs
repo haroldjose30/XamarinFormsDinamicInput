@@ -14,7 +14,10 @@ namespace Dinamic
 
 
             const string cGrupo04 = "Imagem";
-            oFields.Add(new FieldView().SetImageField(cGrupo04, "Rsac Soluções", "www.rsacsolucoes.com.br", "http://www.rsacsolucoes.com.br/images/banners/banner1.png"));
+ //           oFields.Add(new FieldView().SetImageField(cGrupo04, "Rsac Soluções", "www.rsacsolucoes.com.br", "http://www.rsacsolucoes.com.br/images/banners/banner1.png"));
+            oFields.Add(new FieldView().SetImageField(cGrupo04, "Mangueiras em espiral", "As mangueiras em espiral HYDRA® ", "http://www.witzenmann.com.br/pt/media/Wickelschlaeuche.jpg"));
+
+
 
 
             const string cGrupo01 = "Texto e Número";
